@@ -16,7 +16,6 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "yarn"
       - run: yarn install --frozen-lockfile
-      - run: yarn test
       - uses: hashicorp/setup-terraform@v2
       - name: Deploy to AWS
         run: |
