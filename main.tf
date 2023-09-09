@@ -10,23 +10,6 @@ resource "aws_lambda_function" "my_lambda" {
   filename     = "lambda_function_${var.lambdasVersion}.zip"
 }
 
-resource "aws_iam_role" "lambda_role" {
-  name = "my_lambda_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
 resource "aws_lambda_permission" "api_gateway" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
