@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "us-east-1" # Change to your desired AWS region
+}
+
 terraform {
   backend "s3" {
     bucket         = "terraform-state-test-123456788"
@@ -5,9 +9,6 @@ terraform {
     region         = "us-east-1"
     encrypt        = true
   }
-}
-provider "aws" {
-  region = "us-east-1" # Change to your desired AWS region
 }
 
 resource "aws_lambda_function" "my_lambda" {
