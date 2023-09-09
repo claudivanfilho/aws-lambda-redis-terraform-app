@@ -6,7 +6,7 @@ resource "aws_lambda_function" "my_lambda" {
   function_name = "myLambdaFunction"
   handler      = "index.handler"
   runtime      = "nodejs18.x"
-  role         = aws_iam_role.lambda_role.arn
+  role         = "arn:aws:iam::344965508130:role/my_lambda_role"
   filename     = "lambda_function_${var.lambdasVersion}.zip"
 }
 
