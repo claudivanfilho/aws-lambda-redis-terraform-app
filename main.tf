@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-test-123456788"
+    key            = "terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+  }
+}
 provider "aws" {
   region = "us-east-1" # Change to your desired AWS region
 }
@@ -8,6 +16,23 @@ resource "aws_lambda_function" "my_lambda" {
   runtime      = "nodejs18.x"
   role         = "arn:aws:iam::344965508130:role/my_lambda_role"
   filename     = "lambda_function_${var.lambdasVersion}.zip"
+}
+
+resource "aws_iam_role" "lambda_role" {
+  name = "my_lambda_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
 }
 
 resource "aws_lambda_permission" "api_gateway" {

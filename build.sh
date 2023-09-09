@@ -8,7 +8,7 @@ function deploy {
   zip -r ../lambda_function_"$TIMESTAMP".zip . &&\
   cd .. && rm -rf dist &&\
   terraform apply -auto-approve -var lambdasVersion="$TIMESTAMP" &&\
-  rm lambda_function_"$TIMESTAMP".zip
+  rm lambda_function_*
 }
 
 deploy
