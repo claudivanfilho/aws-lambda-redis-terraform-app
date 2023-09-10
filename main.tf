@@ -17,6 +17,14 @@ resource "aws_lambda_function" "my_lambda" {
   runtime      = "nodejs18.x"
   role         = "arn:aws:iam::344965508130:role/my_lambda_role"
   filename     = "lambda_function_${var.lambdasVersion}.zip"
+
+  environment {
+    variables = {
+      UPSTASH_REDIS_REST_URL = "${var.redisUrl}"
+      UPSTASH_REDIS_REST_TOKEN = "${var.redisSecret}"
+      REDIS_DB_PATH = "${var.redisDBPath}"
+    }
+  }
 }
 
 resource "aws_iam_role" "lambda_role" {
@@ -43,7 +51,54 @@ resource "aws_lambda_permission" "api_gateway" {
   principal     = "apigateway.amazonaws.com"
 }
 
+resource "aws_api_gateway_rest_api" "my_api" {
+  name = "my-api"
+}
+
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "analytics"
+}
+
+resource "aws_api_gateway_method" "post_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "lambda_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.my_api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.post_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.my_lambda.invoke_arn
+}
+
+resource "aws_api_gateway_deployment" "my_deployment" {
+  depends_on      = [aws_api_gateway_integration.lambda_integration]
+  rest_api_id     = aws_api_gateway_rest_api.my_api.id
+  stage_name      = "prod"
+}
+
 variable "lambdasVersion" {
   type        = string
   description = "version of the lambdas zip on S3"
+}
+
+variable "redisUrl" {
+  type        = string
+  description = "Upstash Redis URL"
+}
+
+variable "redisSecret" {
+  type        = string
+  description = "Upstash Redis Secret"
+}
+
+variable "redisDBPath" {
+  type        = string
+  description = "Redis DB Path"
 }
