@@ -1,8 +1,26 @@
-import { PLAN_PREFIX, redis } from "./../src/config";
+import { redis } from "../src/redis";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { handler } from "../src";
 
-beforeAll(async () => {
+import { PLAN_PREFIX } from "../src/config";
+
+jest.mock("../src/plans", () => {
+  return {
+    FREE_PLAN: {
+      max: 2,
+      duration: 10_000,
+      monthlyQuota: 1000,
+    },
+    PAID_PLAN: {
+      max: 60,
+      duration: 10_000,
+      monthlyQuota: 5,
+    },
+  };
+});
+
+beforeEach(async () => {
+  await redis.flushall();
   await redis.set(`${PLAN_PREFIX}1`, "paid");
   await redis.set(`${PLAN_PREFIX}2`, "free");
 });
@@ -55,4 +73,27 @@ test("should return 200 when not reach the rate limit", async () => {
       statusCode: 200,
     })
   );
+});
+
+test("should return error when monthly quota reached the limit", async () => {
+  const event = {
+    body: JSON.stringify({ companyId: "1" }),
+  } as APIGatewayProxyEvent;
+  await handler(event);
+  await handler(event);
+  await handler(event);
+  await handler(event);
+  const result5 = await handler(event);
+  const result6 = await handler(event);
+
+  expect(result5).toEqual(
+    expect.objectContaining({
+      statusCode: 200,
+    })
+  );
+
+  expect(result6).toStrictEqual({
+    statusCode: 400,
+    body: JSON.stringify({ message: "Monthly quota reached" }),
+  });
 });

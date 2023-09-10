@@ -2,7 +2,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { PLAN_PREFIX, getLimiter, redis } from "./config";
+import { getLimiter, redis } from "./redis";
+import { PLAN_PREFIX } from "./config";
+import { checkMonthlyQuota } from "./quota";
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const companyId = JSON.parse(event.body || "{}").companyId;
@@ -16,6 +18,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const timeEnd = Date.now();
 
   if (!limiter.remaining) return getErrorResponse("Rate limit reached");
+
+  if (!(await checkMonthlyQuota(companyId, plan))) {
+    return getErrorResponse("Monthly quota reached");
+  }
 
   return {
     statusCode: 200,
