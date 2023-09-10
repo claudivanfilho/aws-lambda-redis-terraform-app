@@ -78,37 +78,9 @@ resource "aws_api_gateway_integration" "lambda_integration" {
 }
 
 resource "aws_api_gateway_deployment" "my_deployment" {
-  depends_on      = [aws_api_gateway_integration.lambda_integration, aws_api_gateway_method_settings.cors]
+  depends_on      = [aws_api_gateway_integration.lambda_integration]
   rest_api_id     = aws_api_gateway_rest_api.my_api.id
   stage_name      = "prod"
-}
-
-resource "aws_api_gateway_method_settings" "cors" {
-  rest_api_id = aws_api_gateway_rest_api.my_api.id
-  stage_name  = aws_api_gateway_deployment.my_deployment.stage_name
-  method_path = "/*/*"  # Adjust to match your resource structure
-
-  settings = {
-    http_method                = "ANY"  # Adjust if you only want to allow specific methods
-    resource_path              = "/*/*"  # Adjust to match your resource structure
-    allow_origins              = ["https://claudivanfilho.github.io/terraform-test/"]  # You can specify specific origins if needed
-    allow_methods              = ["*"]  # You can specify specific methods if needed
-    allow_headers              = ["*"]  # You can specify specific headers if needed
-    max_age                    = 3600    # Optional: Specify the max age in seconds
-    allow_credentials          = false    # Optional: Specify whether to allow credentials
-  }
-}
-
-resource "aws_api_gateway_stage" "cors" {
-  rest_api_id = aws_api_gateway_rest_api.my_api.id
-  stage_name  = aws_api_gateway_deployment.my_deployment.stage_name
-
-  settings = {
-    cache_data_encrypted       = false
-    cache_ttl_in_seconds       = 300
-    require_authorization_for_cache_control = false
-    unauthorized_cache_control_header_strategy = "SUCCEED_WITH_RESPONSE_HEADER"
-  }
 }
 
 variable "lambdasVersion" {

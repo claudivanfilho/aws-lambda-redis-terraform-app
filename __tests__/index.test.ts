@@ -79,10 +79,7 @@ test("should return error when monthly quota reached the limit", async () => {
   const event = {
     body: JSON.stringify({ companyId: "1" }),
   } as APIGatewayProxyEvent;
-  await handler(event);
-  await handler(event);
-  await handler(event);
-  await handler(event);
+  await Promise.all([handler(event), handler(event), handler(event), handler(event)]);
   const result5 = await handler(event);
   const result6 = await handler(event);
 
@@ -92,8 +89,10 @@ test("should return error when monthly quota reached the limit", async () => {
     })
   );
 
-  expect(result6).toStrictEqual({
-    statusCode: 400,
-    body: JSON.stringify({ message: "Monthly quota reached" }),
-  });
+  expect(result6).toStrictEqual(
+    expect.objectContaining({
+      statusCode: 400,
+      body: JSON.stringify({ message: "Monthly quota reached" }),
+    })
+  );
 });

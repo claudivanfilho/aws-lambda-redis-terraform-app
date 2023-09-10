@@ -11,22 +11,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Rate Limit Demo</title>
     <script>
-      function onTestClick() {
-        fetch("https://dsnv4u9ff7.execute-api.us-east-1.amazonaws.com/prod/analytics", {
+      let timesRequested = 0;
+      async function onTestClick() {
+        await fetch("https://dsnv4u9ff7.execute-api.us-east-1.amazonaws.com/prod/analytics", {
           method: "POST",
           body: JSON.stringify({ companyId: "2" }),
-        }).then((res) => {
-          if (!res.ok) {
-            return response.json().then((errorData) => {
-              alert(errorData.message);
-            });
-          }
-        });
+        })
+          .then((res) => {
+            if (!res.ok) {
+              return response.json().then((errorData) => {
+                alert(errorData.message);
+              });
+            }
+          })
+          .catch((error) => {
+            alert(error.message);
+          })
+          .finally(() => {
+            timesRequested += 1;
+            document.getElementById("times-requested").innerText = timesRequested;
+          });
       }
     </script>
   </head>
   <body class="p-6">
     <h1 class="text-4xl">Rate Limit Demo</h1>
+    <h2 class="my-4">You have a rate limit of 10 request each 10 seconds</h2>
+    <h3>Times Request: <span id="times-requested"></span></h3>
     <button class="btn btn-primary mt-4" onclick="onTestClick()">Text Action</button>
   </body>
 </html>

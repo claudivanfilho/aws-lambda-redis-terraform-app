@@ -26,6 +26,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   return {
     statusCode: 200,
     body: JSON.stringify({ message: "ok", redisTime: (timeEnd - timeStart) / 1000 }),
+    headers: {
+      "Access-Control-Allow-Origin": "https://claudivanfilho.github.io",
+    },
   };
 };
 
@@ -33,5 +36,8 @@ function getErrorResponse(message: string) {
   return {
     statusCode: 400,
     body: JSON.stringify({ message }),
+    headers: {
+      "Access-Control-Allow-Origin": "https://claudivanfilho.github.io",
+    },
   };
 }
