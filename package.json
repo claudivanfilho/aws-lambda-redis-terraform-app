@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc",
-    "test": "NODE_ENV=test jest",
+    "test": "NODE_ENV=test jest --forceExit",
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
     "zip": "zip -r lambda-package.zip dist node_modules"
