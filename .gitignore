@@ -36,4 +36,4 @@ dist
 node_modules
 .DS_Store
 lambda_function*
-.env
+.env*

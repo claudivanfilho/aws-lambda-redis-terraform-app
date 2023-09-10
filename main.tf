@@ -22,6 +22,7 @@ resource "aws_lambda_function" "my_lambda" {
     variables = {
       UPSTASH_REDIS_REST_URL = "${var.redisUrl}"
       UPSTASH_REDIS_REST_TOKEN = "${var.redisSecret}"
+      REDIS_DB_PATH = "${var.redisDBPath}"
     }
   }
 }
@@ -95,4 +96,9 @@ variable "redisUrl" {
 variable "redisSecret" {
   type        = string
   description = "Upstash Redis Secret"
+}
+
+variable "redisDBPath" {
+  type        = string
+  description = "Redis DB Path"
 }

@@ -9,5 +9,6 @@ cd .. && rm -rf dist
 terraform apply -auto-approve \
   -var lambdasVersion="$TIMESTAMP" \
   -var redisUrl="$UPSTASH_REDIS_REST_URL" \
-  -var redisSecret="$UPSTASH_REDIS_REST_TOKEN"
+  -var redisSecret="$UPSTASH_REDIS_REST_TOKEN" \
+  -var redisDBPath="$REDIS_DB_PATH"
 rm lambda_function_*

@@ -1,32 +1,8 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { Ratelimit } from "@upstash/ratelimit";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
-
-const ratelimit = {
-  free: new Ratelimit({
-    redis,
-    analytics: true,
-    prefix: "ratelimit:free",
-    limiter: Ratelimit.slidingWindow(2, "10s"),
-    ephemeralCache: new Map(),
-  }),
-  paid: new Ratelimit({
-    redis,
-    analytics: true,
-    prefix: "ratelimit:paid",
-    limiter: Ratelimit.slidingWindow(60, "10s"),
-    ephemeralCache: new Map(),
-  }),
-};
+import { PLAN_PREFIX, getLimiter, redis } from "./config";
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const companyId = JSON.parse(event.body || "{}").companyId;
@@ -34,12 +10,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (!companyId) return getErrorResponse("companyId not provided");
 
   const timeStart = Date.now();
-  const plan: "free" | "paid" | null = await redis.get(`plan_company_${companyId}`);
+  const plan: string | null = await redis.get(`${PLAN_PREFIX}${companyId}`);
   if (!plan) return getErrorResponse("companyId does not have a plan attached");
-  const { success } = await ratelimit[plan].limit(companyId);
+  const limiter = await getLimiter(plan).get({ id: companyId });
   const timeEnd = Date.now();
 
-  if (!success) return getErrorResponse("Rate limit reached");
+  if (!limiter.remaining) return getErrorResponse("Rate limit reached");
 
   return {
     statusCode: 200,
