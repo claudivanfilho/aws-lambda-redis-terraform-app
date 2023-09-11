@@ -20,8 +20,6 @@ resource "aws_lambda_function" "my_lambda" {
 
   environment {
     variables = {
-      UPSTASH_REDIS_REST_URL = "${var.redisUrl}"
-      UPSTASH_REDIS_REST_TOKEN = "${var.redisSecret}"
       REDIS_DB_PATH = "${var.redisDBPath}"
     }
   }

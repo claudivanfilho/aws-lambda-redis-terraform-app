@@ -1,6 +1,3 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { getLimiter, redis } from "./redis";
 import { PLAN_PREFIX } from "./config";
@@ -25,7 +22,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: "ok", redisTime: (timeEnd - timeStart) / 1000 }),
+    body: JSON.stringify({
+      message: "ok",
+      redisTime: (timeEnd - timeStart) / 1000,
+      remaining: limiter.remaining,
+    }),
     headers: {
       "Access-Control-Allow-Origin": "https://claudivanfilho.github.io",
     },

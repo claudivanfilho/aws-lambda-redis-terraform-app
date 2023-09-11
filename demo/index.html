@@ -11,17 +11,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Rate Limit Demo</title>
     <script>
+      const endPoint =
+        document.location.hostname === "127.0.0.1"
+          ? "http://localhost:3000/lambda"
+          : "https://dsnv4u9ff7.execute-api.us-east-1.amazonaws.com/prod/analytics";
       let timesRequested = 0;
       async function onTestClick() {
-        await fetch("https://dsnv4u9ff7.execute-api.us-east-1.amazonaws.com/prod/analytics", {
+        await fetch(endPoint, {
           method: "POST",
           body: JSON.stringify({ companyId: "2" }),
+          headers: {
+            "Content-Type": "application/json",
+          },
         })
           .then((res) => {
             if (!res.ok) {
               return res.json().then((errorData) => {
                 alert(errorData.message);
               });
+            }
+            return res.json();
+          })
+          .then((res) => {
+            if (res?.remaining !== undefined) {
+              document.getElementById("times-remaining").innerText = res.remaining;
+            } else {
+              document.getElementById("times-remaining").innerText = "0";
             }
           })
           .catch((error) => {
@@ -37,7 +52,8 @@
   <body class="p-6">
     <h1 class="text-4xl">Rate Limit Demo</h1>
     <h2 class="my-4">You have a rate limit of 10 requests every 10 seconds</h2>
-    <h3>Times Request: <span id="times-requested"></span></h3>
+    <h3>Times Requested: <span id="times-requested"></span></h3>
+    <h3>Rate Limit Remaining: <span id="times-remaining"></span></h3>
     <button class="btn btn-primary mt-4" onclick="onTestClick()">Test Request</button>
   </body>
 </html>
