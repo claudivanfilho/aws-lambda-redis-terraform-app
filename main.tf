@@ -86,16 +86,6 @@ variable "lambdasVersion" {
   description = "version of the lambdas zip on S3"
 }
 
-variable "redisUrl" {
-  type        = string
-  description = "Upstash Redis URL"
-}
-
-variable "redisSecret" {
-  type        = string
-  description = "Upstash Redis Secret"
-}
-
 variable "redisDBPath" {
   type        = string
   description = "Redis DB Path"

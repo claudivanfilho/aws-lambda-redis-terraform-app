@@ -50,6 +50,9 @@ Before you begin, ensure that you have the following prerequisites installed:
 To deploy the Lambda function from your local machine, follow these steps:
 
 - rename `env` to `.env` and add your redis database url
+- Install the AWS CLI and Terraform CLI on your local machine.
+- Create an AWS account and generate `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+- Configure your AWS credentials with `aws configure`
 - Initialize Terraform:
 
 ```shell
@@ -62,11 +65,13 @@ To deploy the Lambda function from your local machine, follow these steps:
   sh build.sh
 ```
 
-## CD - Continous Delivery
+## Continuous Delivery (CD)
 
 Automate the deployment of your Lambda function using GitHub Actions. The deployment workflow is defined in the .github/workflows/main.yaml file.
 
 ### Setup
+
+To set up Continuous Delivery (CD) using GitHub Actions:
 
 - Install the `AWS CLI` and `Terraform CLI` on your local machine.
 - Create an AWS account and generate `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
